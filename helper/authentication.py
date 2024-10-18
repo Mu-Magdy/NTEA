@@ -1,35 +1,48 @@
 import sqlite3
 import hashlib
-import pandas as pd
-import os
+
 
 # Function to authenticate employee using email and password
 def authenticate_employee(email, password):
+    
+    # Get database path
+    DTABASE_PATH = 'database/company.db'
+    
     # Connect to the database
-    # conn = sqlite3.connect("employee_data.db")
-    database_path = os.path.abspath('../database/employee_data.db')
-    conn = sqlite3.connect(database_path)
+    conn = sqlite3.connect(DTABASE_PATH)
     cursor = conn.cursor()
 
-    # Hash the input password
-    password_hash = hashlib.sha256(password.encode()).hexdigest()
+    # Retrieve the password hash and salt for the given email
+    cursor.execute('''
+        SELECT password_hash, salt, auth.employee_id FROM auth
+        JOIN employees ON auth.employee_id = employees.employee_id
+        WHERE email = ?
+    ''', (email,))
+    result = cursor.fetchone()
 
-    # Query to find the employee with matching email and password hash
-    cursor.execute(
-        "SELECT * FROM employees WHERE email=? AND password_hash=?",
-        (email, password_hash),
-    )
-    employee = cursor.fetchone()
+    if result is None:
+        return "User not found"
+
+    stored_hash, salt, employee_id = result
+
+    # Hash the provided password with the stored salt
+    hashed_password = hashlib.sha256((password + salt).encode()).hexdigest()
     
-    query = f"SELECT * FROM employees WHERE email = '{email}' AND password_hash = '{password_hash}'"
-
-    df = pd.read_sql(query, conn)
-
+    # Close the connecion with the database
     conn.close()
 
-    if employee:
-        print(f"Authentication successful for: {employee[1]} {employee[2]}")
-        return df.to_dict('records')
+    # Check if the provided password is correct
+    if hashed_password == stored_hash:
+        return employee_id
     else:
-        print("Authentication failed!")
-        return None
+        return False
+
+
+# # Example usage:
+# email = 'monica00@example.net', 
+# password = '123'
+# print(authenticate_employee(email, password))
+
+# id, state = authenticate_employee(email, password)
+
+# print(id, state)
