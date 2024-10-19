@@ -57,7 +57,7 @@ The chatbot simplifies how employees interact with their personal data, removing
 
 ## Contact
 If you have any questions or feedback, feel free to reach out to the team:
-[Esmail Essam](https://www.linkedin.com/in/esmail-essam/)
-[Muhammed Magdy](https://www.linkedin.com/in/mu-magdy/)
-[Mohammad Nomer](https://www.linkedin.com/in/mohammad-nomer/)
-[Ziad Mohy](https://www.linkedin.com/in/ziad-mohy-74079b323/)
+- [Esmail Essam](https://www.linkedin.com/in/esmail-essam/)
+- [Muhammed Magdy](https://www.linkedin.com/in/mu-magdy/)
+- [Mohammad Nomer](https://www.linkedin.com/in/mohammad-nomer/)
+- [Ziad Mohy](https://www.linkedin.com/in/ziad-mohy-74079b323/)
