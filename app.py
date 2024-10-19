@@ -1,9 +1,7 @@
-# File: app.py
-
 import streamlit as st
-from helper.chatbot_stream import query_llm
+from helper.chatbot import query_llm
 from helper.authentication import authenticate_employee
-from helper.data import get_data_by_email, get_data
+from helper.data import get_data
 
 def chat_interface(user_data):
     if 'messages' not in st.session_state:
@@ -48,3 +46,8 @@ def main():
 
 if __name__ == "__main__":
     main()
+
+
+# # Example usage:
+# Email: paulamanda@example.com
+# PassWord: 123

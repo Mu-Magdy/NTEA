@@ -1,70 +1,69 @@
+import streamlit as st
 import time
 from .config import client
-
-
-# Looping to make it much more easier
-all_messages = list()
-
 
 # Function to integrate LLM like GPT
 def query_llm(client_data):
     
     # Create system prompt
     system_message = f"""
-        You are an assistant helping non-technical employees with their questions using the information provided.
+    You are an assistant helping non-technical employees with their questions using the information provided.
+    
+    Employee information:
+    - Employee ID: {client_data['employee_id']}
+    - Name: {client_data['first_name']} {client_data['last_name']}
+    - Department: {client_data['department_name']}
+    - Position: {client_data['position_name']}
+    - Base Salary: {client_data['base_salary']}
+    - Bonus: {client_data['bonus']}
+    - Hire Date: {client_data['hire_date']}
+    - Performance Rating: {client_data.get('performance_rating', 'N/A')}
+    - Review Period: {client_data.get('review_period', 'N/A')}
+    - Last Review Date: {client_data.get('last_review_date', 'N/A')}
+    - Leave Balance: {client_data.get('annual_leave_balance', 'N/A')} days
+    - Sick Leave Balance: {client_data.get('sick_leave_balance', 'N/A')} days
+    - Last Login: {client_data.get('last_login', 'N/A')}
+    
+    You are NOT ALLOWED to answer any question that is not related to the information provided.
+    """
+
+    # Get user input
+    user_input = st.chat_input("What is your question?")
+
+    if user_input:
+        # Add user message to chat history
+        st.session_state.messages.append({"role": "user", "content": user_input})
         
-        You will receive the data about the employee in a dictionary
-        the variables of the each dictionary are:
-            - Employee ID: {client_data['employee_id']}
-            - Name: {client_data['first_name']} {client_data['last_name']}
-            - Department: {client_data['department_name']}
-            - Position: {client_data['position_name']}
-            - Base Salary: {client_data['base_salary']}
-            - Bonus: {client_data['bonus']}
-            - Hire Date: {client_data['hire_date']}
-            - Performance Rating: {client_data.get('performance_rating', 'N/A')}
-            - Review Period: {client_data.get('review_period', 'N/A')}
-            - Last Review Date: {client_data.get('last_review_date', 'N/A')}
-            - Leave Balance: {client_data.get('annual_leave_balance', 'N/A')} days
-            - Sick Leave Balance: {client_data.get('sick_leave_balance', 'N/A')} days
-            - Last Login: {client_data.get('last_login', 'N/A')}
-        
-        You are NOT ALLOWED to answer any question that not related to the information provided.
-        """
-    all_messages.append({"role": "system", "content": system_message})
+        # Display user message
+        with st.chat_message("user"):
+            st.markdown(user_input)
 
-    # Looping while true
-    while True:
-        
-        user_question = input("You: ")
-
-        # If the user wants to exit the chatbot -> break
-        if user_question.lower() in ["quit", "exit", "ex", "out", "escape"]:
-            time.sleep(2)  # wait 2 seconds
-
-            # If the user exit the chatbot, Clear it.
-            all_messages.clear()
-            return {"message": "Thanks for using my ChatBot"}
-
-        # If the user doesn't write any thing -> Continue
-        elif user_question.lower() == "":
-            return {"message": "No input detected. Please enter a prompt."}
-
-        else:
-            # Format the employee data and question for the LLM
-            user_prompt = f"Question: {user_question}"
-
-            # append the question of user to message as a user roke
-            all_messages.append({"role": "user", "content": user_prompt})
-
-            # model
-            each_response = client.chat.completions.create(
-                model="gpt-4o-mini", messages=all_messages
+        # Get AI response
+        with st.chat_message("assistant"):
+            message_placeholder = st.empty()
+            full_response = ""
+            messages = [
+                {"role": "system", "content": system_message},
+                *st.session_state.messages
+            ]
+            
+            response = client.chat.completions.create(
+                model="gpt-4",  # or your preferred model
+                messages=messages,
+                stream=True
             )
 
-            each_response = each_response.choices[0].message.content
+            # Stream the response
+            for chunk in response:
+                if chunk.choices[0].delta.content is not None:
+                    full_response += chunk.choices[0].delta.content
+                    time.sleep(0.05)
+                    # Add a blinking cursor to simulate typing
+                    message_placeholder.markdown(full_response + "▌")
+            
+            message_placeholder.markdown(full_response)
 
-            # We must append this respond to the messages
-            all_messages.append({"role": "assistant", "content": each_response})
+        # Add assistant response to chat history
+        st.session_state.messages.append({"role": "assistant", "content": full_response})
 
-            return each_response
+    return st.session_state.messages

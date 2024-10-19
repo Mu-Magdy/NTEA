@@ -58,8 +58,8 @@ cur.execute('''
 CREATE TABLE IF NOT EXISTS leaves (
     leave_id INTEGER PRIMARY KEY AUTOINCREMENT,
     employee_id INTEGER,
-    annual_leave_balance REAL,
-    sick_leave_balance REAL,
+    annual_leave_balance INTEGER,
+    sick_leave_balance INTEGER,
     created_at TEXT DEFAULT CURRENT_TIMESTAMP,
     updated_at TEXT DEFAULT CURRENT_TIMESTAMP,
     FOREIGN KEY (employee_id) REFERENCES employees(employee_id)

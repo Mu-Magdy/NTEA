@@ -42,7 +42,3 @@ def authenticate_employee(email, password):
 # email = 'monica00@example.net', 
 # password = '123'
 # print(authenticate_employee(email, password))
-
-# id, state = authenticate_employee(email, password)
-
-# print(id, state)
