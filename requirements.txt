@@ -1,5 +1,5 @@
 Faker==30.6.0
-openai==1.51.2
+openai==1.51.1
 python-dotenv==1.0.1
 streamlit==1.32.2
 pytest
