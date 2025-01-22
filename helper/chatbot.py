@@ -3,29 +3,37 @@ import time
 from .config import client
 
 # Function to integrate LLM like GPT
-def query_llm(client_data):
+def query_llm(client_data=None, guest_mode=None):
     
-    # Create system prompt
-    system_message = f"""
-    You are an assistant helping non-technical employees with their questions using the information provided.
-    
-    Employee information:
-    - Employee ID: {client_data['employee_id']}
-    - Name: {client_data['first_name']} {client_data['last_name']}
-    - Department: {client_data['department_name']}
-    - Position: {client_data['position_name']}
-    - Base Salary: {client_data['base_salary']}
-    - Bonus: {client_data['bonus']}
-    - Hire Date: {client_data['hire_date']}
-    - Performance Rating: {client_data.get('performance_rating', 'N/A')}
-    - Review Period: {client_data.get('review_period', 'N/A')}
-    - Last Review Date: {client_data.get('last_review_date', 'N/A')}
-    - Leave Balance: {client_data.get('annual_leave_balance', 'N/A')} days
-    - Sick Leave Balance: {client_data.get('sick_leave_balance', 'N/A')} days
-    - Last Login: {client_data.get('last_login', 'N/A')}
-    
-    You are NOT ALLOWED to answer any question that is not related to the information provided.
-    """
+    if not guest_mode: 
+        # Create system prompt
+        system_message = f"""
+        You are an assistant helping non-technical employees with their questions using the information provided.
+        
+        Employee information:
+        - Employee ID: {client_data['employee_id']}
+        - Name: {client_data['first_name']} {client_data['last_name']}
+        - Department: {client_data['department_name']}
+        - Position: {client_data['position_name']}
+        - Base Salary: {client_data['base_salary']}
+        - Bonus: {client_data['bonus']}
+        - Hire Date: {client_data['hire_date']}
+        - Performance Rating: {client_data.get('performance_rating', 'N/A')}
+        - Review Period: {client_data.get('review_period', 'N/A')}
+        - Last Review Date: {client_data.get('last_review_date', 'N/A')}
+        - Leave Balance: {client_data.get('annual_leave_balance', 'N/A')} days
+        - Sick Leave Balance: {client_data.get('sick_leave_balance', 'N/A')} days
+        - Last Login: {client_data.get('last_login', 'N/A')}
+        
+        You are NOT ALLOWED to answer any question that is not related to the information provided.
+        """
+    else:
+        # Create system prompt
+        system_message = f"""
+        You are an assistant helping non-technical employees with their questions using the information provided.
+        
+        You are NOT ALLOWED to answer any question that is not related to the information provided.
+        """
 
     # Get user input
     user_input = st.chat_input("What is your question?")
