@@ -1,9 +1,29 @@
 import streamlit as st
 import time
+import faiss
+import numpy as np
+from sentence_transformers import SentenceTransformer
 from .config import client
+import pickle
+
+
+with open("faiss_data.pkl", "rb") as f:
+    data = pickle.load(f)
+
+index = data["index"]
+chunks = data["chunks"]
+model = SentenceTransformer('all-MiniLM-L6-v2')
+
+# Function to search FAISS index
+def search_faiss(query, model, index, chunks, top_k=5):
+    query_embedding = model.encode([query])
+    distances, indices = index.search(np.array(query_embedding), top_k)
+    results = [{"chunk": chunks[i], "distance": distances[0][j]} 
+               for j, i in enumerate(indices[0])]
+    return results
 
 # Function to integrate LLM like GPT
-def query_llm(client_data=None, guest_mode=None):
+def query_llm(client_data=None, guest_mode=None,chunks=chunks):
     
     if not guest_mode: 
         # Create system prompt
@@ -39,6 +59,13 @@ def query_llm(client_data=None, guest_mode=None):
     user_input = st.chat_input("What is your question?")
 
     if user_input:
+        
+        faiss_results = search_faiss(user_input, model, index, chunks)
+        context = "\n".join([f"Context {i+1}: {res['chunk']}" for i, res in enumerate(faiss_results)])
+        
+        # Add FAISS context to system message
+        system_message += f"\nRelevant Information:\n{context}"
+
         # Add user message to chat history
         st.session_state.messages.append({"role": "user", "content": user_input})
         
